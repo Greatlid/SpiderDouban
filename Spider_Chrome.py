@@ -9,33 +9,55 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import ChromeOptions
 import re
 import numpy as np
+from msedge.selenium_tools import EdgeOptions, Edge
 
-def GetHTML():
+def GetHTML(brochoice):
     ################################################
     #设置无头浏览器
-    chrome_options = ChromeOptions()
-    # chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-gpu')
-    # chrome_options.add_argument("--proxy-server=http://111.231.86.149:7890")
-    options = Options()
-    options.add_experimental_option('excludeSwitches', ['enable-automation'])
-    # options.add_argument("--proxy-server=http://183.247.211.151:30001")
-    options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument("--disable-blink-features")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    executable_path = r'./chromedriver.exe'
-    bro = webdriver.Chrome(executable_path=executable_path, chrome_options=chrome_options, options=options)
-    bro.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": """
-        Object.defineProperty(navigator, 'webdriver', {
-          get: () => undefined
+    if brochoice:
+        #chrome
+        chrome_options = ChromeOptions()
+        # chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        # chrome_options.add_argument("--proxy-server=http://111.231.86.149:7890")
+        options = Options()
+        options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        # options.add_argument("--proxy-server=http://183.247.211.151:30001")
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument("--disable-blink-features")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        executable_path = r'./chromedriver.exe'
+        bro = webdriver.Chrome(executable_path=executable_path, chrome_options=chrome_options, options=options)
+        bro.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+            Object.defineProperty(navigator, 'webdriver', {
+              get: () => undefined
+            })
+          """
         })
-      """
-    })
 
+    else:
+        #edge
+        edge_options = EdgeOptions()
+        edge_options.add_argument('--headless')
+        edge_options.add_argument('--disable-gpu')
+        edge_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        # options.add_argument("--proxy-server=http://183.247.211.151:30001")
+        edge_options.add_experimental_option('useAutomationExtension', False)
+        edge_options.add_argument("--disable-blink-features")
+        edge_options.add_argument("--disable-blink-features=AutomationControlled")
+        executable_path = r'./msedgedriver.exe'
+        bro = Edge(executable_path=executable_path, options=edge_options)
+        bro.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+            Object.defineProperty(navigator, 'webdriver', {
+              get: () => undefined
+            })
+          """
+        })
     ###################################################
     #对每本书依次爬取信息
-
+    bro.minimize_window()
     bookinfor = pd.read_csv('./data/bookinfor.csv')
     files = os.listdir('./html')
     files = [eval(t.split('.')[0]) for t in files]
@@ -71,6 +93,11 @@ def GetHTML():
 
     bro.quit()
 
+brochoice = 1  #1:chrome  0:edge
 while 1:
-    GetHTML()
-    sleep(300)
+    brochoice = 1
+    GetHTML(brochoice)
+    sleep(180)
+    brochoice = 0
+    GetHTML(brochoice)
+    sleep(180)

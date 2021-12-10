@@ -14,7 +14,7 @@ NONEFLAG = '-1'
 res_df = pd.DataFrame(columns=('题名', '信息', '网址'))
 res_all = {}
 bookinfor = pd.read_csv('./data/bookinfor.csv')
-for i in range(11, len(bookinfor)):
+for i in range(0, len(bookinfor)):
     print('当前匹配书籍为%d' % i)
     try:
         booktitle = bookinfor.iloc[i, 0]
@@ -29,8 +29,13 @@ for i in range(11, len(bookinfor)):
         # bookdetail = tree.xpath('//div[@id="wrapper"]//div[@class="item-root"]')
         res_url, res_title, res_infor = [], [], []
         for detail in bookdetail:
-            res_url += detail.xpath('.//a/@href')
-            res_title += (detail.xpath('.//a/text()'))
+            url_temp = detail.xpath('.//a/@href')
+            title_temp = detail.xpath('.//a/text()')
+
+            if url_temp: res_url += url_temp
+            else: res_url += [NONEFLAG]
+            if title_temp: res_title += title_temp
+            else:  res_title += [NONEFLAG]
             infor_temp = detail.xpath('.//div[@class="meta abstract"]/text()')
             if infor_temp: res_infor += infor_temp
             else: res_infor += [NONEFLAG]
