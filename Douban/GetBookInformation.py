@@ -12,7 +12,7 @@ headers = {
 'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
 'Cache-Control': 'max-age=0',
 'Connection': 'keep-alive',
-'Cookie': 'bid=aStoRYrwXN8; gr_user_id=f6e3cf9e-51b4-46de-bdd1-aabf8dca6f5c; _vwo_uuid_v2=D39390021B192FF773CE01FE15106C244|8292a37f118f517dbf88b53aee9f1327; push_doumail_num=0; push_noty_num=0; __gads=ID=3d649453488db278-22505defa0ce00a6:T=1636601693:RT=1636601693:S=ALNI_MavR0SyFTy1-Yr4N2ekWQyfER8C2A; __yadk_uid=iZfrfGVY99nwC0UMxIkFaDq6Gjpi1XLS; ll="118371"; _ga=GA1.1.2122267463.1636888206; __utmv=30149280.24987; douban-fav-remind=1; ct=y; __utmz=30149280.1639149612.13.11.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; __utmz=81379588.1639149612.17.13.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; __utmc=30149280; __utmc=81379588; _ga_RXNMP372GL=GS1.1.1639187231.2.1.1639187380.0; __utma=30149280.2122267463.1636888206.1639189832.1639194080.16; __utma=81379588.1633473874.1636601563.1639189847.1639194080.20; _pk_ref.100001.3ac3=["","",1639194080,"https://www.baidu.com/link?url=gh2PceqhGr8lDb2scDE32V6ZDWbHAW1A9GZWHkOppLn27n42uViGytdscxFC0Cjn&wd=&eqid=bea7bce6001a218b0000000261b37027"]; ap_v=0,6.0; dbcl2="249872952:GiPLHj5z6aE"; ck=7O-S; _pk_id.100001.3ac3=ae28e8ef85c97326.1636601565.21.1639198051.1639191868.',
+'Cookie': 'bid=aStoRYrwXN8; gr_user_id=f6e3cf9e-51b4-46de-bdd1-aabf8dca6f5c; _vwo_uuid_v2=D39390021B192FF773CE01FE15106C244|8292a37f118f517dbf88b53aee9f1327; push_doumail_num=0; push_noty_num=0; __gads=ID=3d649453488db278-22505defa0ce00a6:T=1636601693:RT=1636601693:S=ALNI_MavR0SyFTy1-Yr4N2ekWQyfER8C2A; __yadk_uid=iZfrfGVY99nwC0UMxIkFaDq6Gjpi1XLS; ll="118371"; _ga=GA1.1.2122267463.1636888206; __utmv=30149280.24987; douban-fav-remind=1; ct=y; __utmc=30149280; __utmc=81379588; _ga_RXNMP372GL=GS1.1.1639187231.2.1.1639187380.0; dbcl2="249872952:GiPLHj5z6aE"; ck=7O-S; ap_v=0,6.0; __utma=30149280.2122267463.1636888206.1639215689.1639221711.20; __utmz=30149280.1639221711.20.13.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; __utmt=1; gr_session_id_22c937bbd8ebd703f2d8e9445f7dfd03=6d60a21c-baf6-4558-8655-8aaa63f5e3ce; gr_cs1_6d60a21c-baf6-4558-8655-8aaa63f5e3ce=user_id:1; __utmt_douban=1; __utmb=30149280.3.10.1639221711; __utma=81379588.1633473874.1636601563.1639215689.1639221716.24; __utmz=81379588.1639221716.24.15.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/misc/sorry; __utmb=81379588.1.10.1639221716; _pk_ref.100001.3ac3=["","",1639221716,"https://www.douban.com/misc/sorry?original-url=https%3A%2F%2Fbook.douban.com%2F"]; _pk_id.100001.3ac3=ae28e8ef85c97326.1636601565.25.1639221716.1639215695.; _pk_ses.100001.3ac3=*; gr_session_id_22c937bbd8ebd703f2d8e9445f7dfd03_6d60a21c-baf6-4558-8655-8aaa63f5e3ce=true',
 'Host': 'book.douban.com',
 'Referer': 'https://accounts.douban.com/',
 'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Microsoft Edge";v="96"',
@@ -27,13 +27,18 @@ headers = {
 }
 
 
+ips = [{'http':'111.20.225.130'}, {'http':'192.168.1.101'}, {'http':'111.20.225.137'}]
 def GetBookInfor(url):
     flag = 0
     # url = 'https://book.douban.com/subject/4913064/'
     try:
         bookname, author, pub, price, ISBN, content, catalogue, label, simbook, comment = [[None]] * 10
-        response = requests.get(url, headers = headers, timeout = 60)
-        print('请求状态：',response.status_code)
+        for i in range(len(ips)):
+            response = requests.get(url, headers = headers, timeout = 60, proxies = ips[i])
+            print('请求状态：',response.status_code)
+            if response.status_code != 200:
+                continue
+            else: break
         if response.status_code != 200:
             flag = 1  #ip异常或网络异常
             return None, flag
@@ -130,3 +135,5 @@ if __name__ == '__main__':
                 f.write(str(isbn_set))
                 f.close()
             # sleep(0.1)
+        else:url_queue.pop(0)
+#192.168.1.101
