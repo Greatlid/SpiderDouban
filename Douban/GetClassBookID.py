@@ -97,5 +97,5 @@ if __name__ == '__main__':
     # pool.map(GetAllBookList, taglist)
 
     for i, tag in enumerate(taglist):
-        print('第%d个tag, 总共%d个tag', % (i, len(taglist)))
+        print('第%d个tag, 总共%d个tag' % (i, len(taglist)))
         GetAllBookList(tag)
