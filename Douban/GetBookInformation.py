@@ -39,7 +39,8 @@ def GetBookInfor(url):
             return None, flag
         tree = etree.HTML(response.text)
         bookname = tree.xpath('//span[@property="v:itemreviewed"]/text()')
-        author = tree.xpath('//div[@id="info"]//a/text()')[0].replace('\n', '')
+        author = tree.xpath('//div[@id="info"]//a/text()')
+        if len(author) > 0:author = author[0].replace('\n', '')
         info = tree.xpath('//div[@id="info"]//text()')
         info = [t for t in info if not '\n' in t]
         for i, t in enumerate(info):
@@ -94,14 +95,17 @@ if __name__ == '__main__':
         bookres = pd.DataFrame(columns=['url', 'bookname', 'author', 'pub', 'price', 'ISBN', 'content', 'catalogue', 'label', 'simbook', 'comment'])
         print('新建文件')
 
+    save_freq = 10
     while 1:
         cururl = url_queue[0]
         if not cururl in url_list:
             res, flag = GetBookInfor(cururl)
             if flag == 1:  #ip被封
+                print('ip异常')
                 sleep(120)
                 continue
             if flag == 2:  #网页异常
+                print('网页异常')
                 url_queue.pop(0)
                 continue
             _, bookname, author, pub, price, ISBN, content, catalogue, label, simbook, comment = res
@@ -112,7 +116,10 @@ if __name__ == '__main__':
 
             bookres.loc[cnt] = res
             cnt += 1
-            bookres.to_csv('./BookInfor/book.csv', index=False, encoding='utf_8_sig')
+            if cnt % save_freq == 0:
+                print(bookres.tail())
+                print('booknum:', cnt)
+                bookres.to_csv('./BookInfor/book.csv', index=False, encoding='utf_8_sig')
             with open('./BookInfor/url_list.txt', 'w') as f:
                 f.write(str(url_list))
                 f.close()
@@ -122,4 +129,4 @@ if __name__ == '__main__':
             with open('./BookInfor/isbn_set.txt', 'w') as f:
                 f.write(str(isbn_set))
                 f.close()
-            sleep(1)
+            # sleep(0.1)

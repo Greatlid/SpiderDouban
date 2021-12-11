@@ -32,6 +32,7 @@ tree = etree.HTML(pagetext)
 res = tree.xpath('//div[@class="grid-16-8 clearfix"]//a/@href')
 res = [re.sub(r'/tag/', '', t) for t in res]
 print(res)
+booknum = tree.xpath('//div[@class="grid-16-8 clearfix"]//b/text()')
 with open('./DoubanData/tag.txt', 'w', encoding='utf-8') as f:
     f.write(str(res[1:]))
 
