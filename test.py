@@ -21,7 +21,12 @@ headers = {
 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36 Edg/96.0.1054.43'
 }
 url = 'https://book.douban.com/subject/35659142/'
-response = requests.get(url, headers = headers) #{"User-Agent": agent_arr[0]}
+proxy = '58.20.235.180:9091'
+proxies = {
+     'http': 'http://' + proxy,
+     # 'https': 'https://' +proxy
+}
+response = requests.get(url, headers = headers, proxies = proxies) #{"User-Agent": agent_arr[0]}
 print(response.status_code)
 with open('./test.html', 'wb') as f:
     f.write(response.content)
