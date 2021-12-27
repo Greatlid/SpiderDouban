@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+import random
+
 import pandas as pd
 import requests
 from time import sleep
@@ -51,42 +53,58 @@ def UrlQueue():
     with open('./BookInfor/url_queue_Interface.txt', 'w') as f:
         f.write(str(url_queue))
 
-def GetFace(url):
-    pass
 
 
 def GetInterface():
     global cookiestartpos
-    with open('./BookInfor/url_queue_Interface.txt', 'r') as f:
-        url_queue = f.read()
-        url_queue = eval(url_queue)
+    if os.path.isfile('./BookInfor/url_queue_Interface.txt'):
+        with open('./BookInfor/url_queue_Interface.txt', 'r') as f:
+            url_queue = f.read()
+            url_queue = eval(url_queue)
+    else:
+        # store queue list
+        UrlQueue()
+    if os.path.isfile('./BookInfor/isbn_list_Interface.txt'):
+        print('加载已有文件')
+        with open('./BookInfor/isbn_list_Interface.txt') as f:
+            isbn_list = eval(f.read())
+    else:
+        print('创建新文件')
+        isbn_list = []
     while 1:
         try:
             isbn = eval(url_queue[0][0])[0].replace(' ', '')
             cururl = eval(url_queue[0][1])[0]
-
-            # content, flag = GetFace(cururl)
-            for i in range(len(Cookie)):
-                response = requests.get(cururl, headers = headers)
-                print('请求状态：',response.status_code, 'cookie choice:', cookiestartpos)
+            if isbn not in isbn_list:
+                for i in range(len(Cookie)):
+                    response = requests.get(cururl, headers = headers, timeout = 60)
+                    print('请求状态：',response.status_code, 'cookie choice:', cookiestartpos)
+                    if response.status_code != 200:
+                        cookiestartpos = (cookiestartpos + 1) % len(Cookie)
+                        continue
+                    else: break
                 if response.status_code != 200:
-                    cookiestartpos = (cookiestartpos + 1) % len(Cookie)
+                    print('ip 异常')
+                    sleep(120)
                     continue
-                else: break
-            if response.status_code != 200:
-                print('ip 异常')
-                sleep(120)
-                continue
-            with open('./BookInfor/BookInterface/%s.jpg' % isbn, 'wb') as f:
-                f.write(response.content)
 
+                print('queue: ', len(url_queue), 'isbnset: ', len(isbn_list))
+
+                isbn_list.append(isbn)
+                url_queue.pop(0)
+                with open('./BookInfor/BookInterface/%s.jpg' % isbn, 'wb') as f:
+                    f.write(response.content)
+                with open('./BookInfor/isbn_list_Interface.txt', 'w') as f:
+                    f.write(str(isbn_list))
+                sleep(random.random()/4+1)
+            else:
+                url_queue.pop(0)
         except:
             url_queue.pop(0)
             continue
 
 if __name__ == "__main__":
-    #store queue list
-    UrlQueue()
+
 
     #get interface
     GetInterface()
